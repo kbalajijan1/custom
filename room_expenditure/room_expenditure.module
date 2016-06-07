@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * hook_menu
+ */
+function room_expentiture_menu() {
+  $items = [];
+  $item['room_expentiture'] = [
+    '#page callback' => 'drupal_get_form',
+    '#page argument' => array('room_expentiture'),
+    '#access callback' => TRUE,
+  ];
+  return $item;
+}
+
+/**
+ * page callback
+ */
+function room_expentiture(&$from, &$form_state) {
+  $from['fieldset'] = [
+    '#type' => 'fieldset',
+  ];
+  $form_state['values']['count'] = empty($form_state['values']['count']) ? 1 : $form_state['values']['count'];
+  for ($i = 0; $i < $form_state['values']['count']; $i++) {
+    $form['fieldset'][$i]['top'] = [
+      '#markup' => '<div class="field">'
+    ];
+    $form['fieldset'][$i]['amount'] = [
+      '#type' => 'textfield',
+      '#title' => t('Amount'),
+    ];
+    $form['fieldset'][$i]['sponsors'] = [
+      '#type' => 'checkboxes',
+      '#title' => t('Sponsors'),
+    ];
+    $form['fieldset'][$i]['contributors'] = [
+      '#type' => 'Checkboxes',
+      '#title' => t('Contributors'),
+    ];
+    $form['fieldset'][$i]['bottom'] = [
+      '#markup' => '</div>'
+    ];
+  }
+  $form['add'] = [
+    '#type' => 'submit',
+    '#ajax' => [
+      'callback' => ['room_expentiture_add_callback'],
+    ],
+    '#submit' => ['room_expentiture_add'],
+  ];
+  $form['calculate'] = [
+    '#type' => 'submit',
+    '#ajax' => [
+      'callback' => ['room_expentiture_calculate'],
+    ],
+  ];
+  $form['calculations_wrapper'] = [
+    '#markup' => '<div class="calculations-wrapper"></div>'
+  ];
+}
+
+function room_expentiture_add_callback() {
+  return $form['fieldset'];
+}
+
+function room_expentiture_add() {
+  $form_state['values']['count']++;
+  $form_state['rebuild'] = TRUE;
+}
