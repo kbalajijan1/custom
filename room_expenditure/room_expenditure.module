@@ -3,20 +3,20 @@
 /**
  * hook_menu
  */
-function room_expentiture_menu() {
+function room_expenditure_menu() {
   $items = [];
-  $item['room_expentiture'] = [
-    '#page callback' => 'drupal_get_form',
-    '#page argument' => array('room_expentiture'),
-    '#access callback' => TRUE,
+  $items['room_expenditure'] = [
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('room_expenditure'),
+    'access callback' => TRUE,
   ];
-  return $item;
+  return $items;
 }
 
 /**
  * page callback
  */
-function room_expentiture(&$from, &$form_state) {
+function room_expenditure($from, &$form_state) {
   $from['fieldset'] = [
     '#type' => 'fieldset',
   ];
@@ -44,26 +44,27 @@ function room_expentiture(&$from, &$form_state) {
   $form['add'] = [
     '#type' => 'submit',
     '#ajax' => [
-      'callback' => ['room_expentiture_add_callback'],
+      'callback' => ['room_expenditure_add_callback'],
     ],
-    '#submit' => ['room_expentiture_add'],
+    '#submit' => ['room_expenditure_add'],
   ];
   $form['calculate'] = [
     '#type' => 'submit',
     '#ajax' => [
-      'callback' => ['room_expentiture_calculate'],
+      'callback' => ['room_expenditure_calculate'],
     ],
   ];
   $form['calculations_wrapper'] = [
     '#markup' => '<div class="calculations-wrapper"></div>'
   ];
+  return $form;
 }
 
-function room_expentiture_add_callback() {
+function room_expenditure_add_callback($from, &$form_state) {
   return $form['fieldset'];
 }
 
-function room_expentiture_add() {
+function room_expenditure_add($from, &$form_state) {
   $form_state['values']['count']++;
   $form_state['rebuild'] = TRUE;
 }
