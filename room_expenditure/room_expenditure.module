@@ -17,54 +17,128 @@ function room_expenditure_menu() {
  * page callback
  */
 function room_expenditure($from, &$form_state) {
-  $from['fieldset'] = [
+	global $members;
+	$members = ['Balaji', 'Praba', 'Mani', 'Karthi'];
+	$form['#tree'] = TRUE;
+  $form['fieldset'] = [
     '#type' => 'fieldset',
+    '#prefix' => '<div id="expenditure-fieldset-wrapper">',
+    '#suffix' => '</div>',		
   ];
-  $form_state['values']['count'] = empty($form_state['values']['count']) ? 1 : $form_state['values']['count'];
-  for ($i = 0; $i < $form_state['values']['count']; $i++) {
-    $form['fieldset'][$i]['top'] = [
-      '#markup' => '<div class="field">'
+
+  if(empty($form_state['count'])) {
+		$form_state['count'] = 1;
+	}		
+  for ($i = 0; $i < $form_state['count']; $i++) {
+    $form['fieldset']['fieldset1'][$i] = [
+			'#type' => 'fieldset',
+      '#prefix' => '<div class="field">',
+			'#suffix' => '</div>',
     ];
-    $form['fieldset'][$i]['amount'] = [
+    $form['fieldset']['fieldset1'][$i]['amount'] = [
       '#type' => 'textfield',
       '#title' => t('Amount'),
     ];
-    $form['fieldset'][$i]['sponsors'] = [
+    $form['fieldset']['fieldset1'][$i]['sponsors'] = [
       '#type' => 'checkboxes',
+			'#options' => drupal_map_assoc($members),
       '#title' => t('Sponsors'),
     ];
-    $form['fieldset'][$i]['contributors'] = [
-      '#type' => 'Checkboxes',
+    $form['fieldset']['fieldset1'][$i]['contributors'] = [
+      '#type' => 'checkboxes',
+			'#options' => drupal_map_assoc($members),
       '#title' => t('Contributors'),
-    ];
-    $form['fieldset'][$i]['bottom'] = [
-      '#markup' => '</div>'
     ];
   }
   $form['add'] = [
     '#type' => 'submit',
+		'#value' => t('Add'),
+'#submit' => ['room_expenditure_add'],		
     '#ajax' => [
-      'callback' => ['room_expenditure_add_callback'],
-    ],
-    '#submit' => ['room_expenditure_add'],
+      'callback' => 'room_expenditure_add_callback',
+						'wrapper' => 'expenditure-fieldset-wrapper',
+    ],   
   ];
   $form['calculate'] = [
     '#type' => 'submit',
+		'#value' => t('Calculate'),
     '#ajax' => [
-      'callback' => ['room_expenditure_calculate'],
+      'callback' => 'room_expenditure_calculate',
+			'wrapper' => 'calculations-wrapper',
     ],
   ];
   $form['calculations_wrapper'] = [
-    '#markup' => '<div class="calculations-wrapper"></div>'
+    '#markup' => '<div id="calculations-wrapper"></div>'
   ];
   return $form;
 }
 
-function room_expenditure_add_callback($from, &$form_state) {
+function room_expenditure_add_callback($form, $form_state) {
   return $form['fieldset'];
 }
 
 function room_expenditure_add($from, &$form_state) {
-  $form_state['values']['count']++;
+	
+  $form_state['count']++;
   $form_state['rebuild'] = TRUE;
+}
+
+function room_expenditure_calculate($from, &$form_state) {
+	global $members;
+	$members = ['Balaji', 'Praba', 'Mani', 'Karthi'];
+	$members_amount['sponsors'] = [];
+	$members_amount['contributers'] = [];
+			foreach($form_state['values']['fieldset']['fieldset1'] as $key => $value) {
+				$contributers = array_filter($value['contributors']);
+				if(!empty($value['amount']) && !empty($contributers)) {
+					$contributer_share = $value['amount'] / count($contributers);
+					foreach($contributers as $contributer) {
+												if(empty($members_amount[$contributer])) {
+							$members_amount['contributers'][$contributer] = [];
+						}
+						array_push($members_amount['contributers'][$contributer], $contributer_share);
+					
+					}
+					$sponsors = array_filter($value['sponsors']);					
+					if(!empty($sponsors)) {
+						$sponsors_count = count($sponsors);
+						if($sponsors_count > 1) {
+						$sponsors_share = $value['amount'] / $sponsors_count;
+						}
+						if(empty($members_amount[$sponsor])) {
+							$members_amount[$sponsor] = [];
+						}
+						foreach($sponsors as $sponsor) {
+						if(empty($members_amount[$sponsor])) {
+							$members_amount['sponsors'][$sponsor] = [];
+						}							
+						array_push($members_amount['sponsors'][$sponsor], $sponsors_share);
+						}
+					}
+				}
+			}	
+			$output = '';
+			foreach($members_amount as $key => $value) {
+				if($key == 'sponsors') {
+					$sponsors = [];
+					foreach($value as $sponsor_member => $amount) {
+						$output .= $sponsor_member .' sponsored ' . array_sum($amount) . '<br>';
+						$sponsors[$sponsor_member] = array_sum($amount);
+					}
+				}
+				else {
+					$contributers = [];
+										foreach($value as $contributer => $amount) {
+						$output .= $contributer .' has to contribute ' . array_sum($amount) . '<br>';
+						$contributers[$contributer] = array_sum($amount);
+					}
+				}
+			}
+			foreach($members as $member) {
+				if(empty($sponsors[$member])) {
+					$sponsors[$member] = 0;
+				}
+				$output .= $member . ' has to pay' . ($contributers[$member] - $sponsors[$member]) . '<br>';
+			}
+			return $output;
 }
