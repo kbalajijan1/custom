@@ -1,0 +1,18 @@
+.checkbox-container {
+  float: left;
+  width: 33%;
+}
+.amount-wrapper {
+  float: left;
+  width: 33%;
+}
+
+.amount-wrapper input, .amount-wrapper label {
+  width: 70%;
+}
+
+.digit {
+  color: #000;
+  font-weight: bold;
+}
+
