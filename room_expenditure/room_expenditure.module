@@ -18,6 +18,7 @@ function room_expenditure_menu() {
  */
 function room_expenditure($from, &$form_state) {
 	global $members;
+	$form['#attached']['js'][] = drupal_get_path('module', 'room_expenditure') . 'room_expenditure.js';
 	$members = ['Balaji', 'Praba', 'Mani', 'Karthi'];
 	$form['#tree'] = TRUE;
   $form['fieldset'] = [
@@ -44,11 +45,22 @@ function room_expenditure($from, &$form_state) {
 			'#options' => drupal_map_assoc($members),
       '#title' => t('Sponsors'),
     ];
+				$form['fieldset']['fieldset1'][$i]['select_all_top'] = [
+			'#markup' => '<div class="checkbox-container">'
+		];
+				$form['fieldset']['fieldset1'][$i]['select_all'] = [
+					'#type' => 'checkbox',
+					'#label' => t('Select All'),
+					'#attributes' => array('class' => array('select-all')),
+				];
     $form['fieldset']['fieldset1'][$i]['contributors'] = [
       '#type' => 'checkboxes',
 			'#options' => drupal_map_assoc($members),
       '#title' => t('Contributors'),
     ];
+		$form['fieldset']['fieldset1'][$i]['select_all_end'] = [
+			'#markup' => '</div>'
+		];
   }
   $form['add'] = [
     '#type' => 'submit',
