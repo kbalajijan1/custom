@@ -143,13 +143,13 @@ function room_expenditure_calculate($from, &$form_state) {
   foreach ($members_amount as $key => $value) {
     if ($key == 'sponsors') {
       foreach ($value as $sponsor_member => $amount) {
-        $output .= $sponsor_member . ' sponsored <span class="digit">Rs.' . array_sum($amount) . '</span><br>';
+        $output .= $sponsor_member . ' sponsored <span class="digit">Rs.' . round(array_sum($amount)) . '</span><br>';
         $sponsors[$sponsor_member] = array_sum($amount);
       }
     }
     else {
       foreach ($value as $contributer => $amount) {
-        $output .= $contributer . '\'s share <span class="digit">Rs.' . array_sum($amount) . '</span><br>';
+        $output .= $contributer . '\'s share <span class="digit">Rs.' . round(array_sum($amount)) . '</span><br>';
         $contributers[$contributer] = array_sum($amount);
       }
     }
@@ -159,7 +159,7 @@ function room_expenditure_calculate($from, &$form_state) {
     if (empty($sponsors[$member])) {
       $sponsors[$member] = 0;
     }
-    $output .= $member . ' has to pay <span class="digit">Rs.' . ($contributers[$member] - $sponsors[$member]) . '</span><br>';
+    $output .= $member . ' has to pay <span class="digit">Rs.' . round(($contributers[$member] - $sponsors[$member])) . '</span><br>';
   }
   $commands = array();
   $commands[] = ajax_command_html("#calculations-wrapper", $output);
